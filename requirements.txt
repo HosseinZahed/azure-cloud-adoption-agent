@@ -1,0 +1,8 @@
+asyncio
+dotenv
+chainlit
+semantic-kernel[all]
+markitdown
+openai
+bs4
+requests
