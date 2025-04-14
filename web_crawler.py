@@ -11,18 +11,20 @@ md = MarkItDown(enable_plugins=False, )
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+resources_dir = "resources"
+output_dir = "web_contents"
+temp_dir = ".temp"
 
 def fetch_web_pages():
-    # Ensure the output directory exists
-    output_dir = "web_contents"
+    # Ensure the output directory exists    
     os.makedirs(output_dir, exist_ok=True)
 
-    # Ensure the temporary directory exists
-    temp_dir = ".temp"
+    # Ensure the temporary directory exists    
     os.makedirs(temp_dir, exist_ok=True)
 
     # Read URLs from the web_resources.txt file
-    with open("web_resources.txt", "r") as file:
+    web_resources_file = os.path.join(resources_dir, "web_resources.txt")
+    with open(web_resources_file, "r", encoding="utf-8") as file:
         urls = file.readlines()
 
     for url in urls:
@@ -36,8 +38,6 @@ def fetch_web_pages():
             response = requests.get(url)
             response.raise_for_status()
 
-            logger.info(f"Successfully fetched content from {url}")
-
             # Parse the HTML content using BeautifulSoup
             soup = BeautifulSoup(response.content, features="html.parser")
 
@@ -46,12 +46,11 @@ def fetch_web_pages():
                                    for div in soup.find_all("div", class_="content"))
 
             # Save content divs to a temporary HTML file
-            temp_file = os.path.join(temp_dir, f"temp.html")
+            temp_file = os.path.join(temp_dir, "temp.html")
             with open(temp_file, "w", encoding="utf-8") as f:
                 f.write(content_divs)
 
-            # Extract text using markitdown from the temporary HTML file
-            logger.info(f"Converting HTML to markdown for {url}")
+            # Extract text using markitdown from the temporary HTML file            
             text_content = md.convert(temp_file)
 
             # Save the content to a markdown file
